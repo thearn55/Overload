@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="OVERLOAD"/>
+<title>OVERLOAD</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0a0a0a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#app{max-width:480px;margin:0 auto;padding:20px 16px 80px;min-height:100vh}
+
+/* Typography */
+.app-name{font-size:24px;font-weight:900;letter-spacing:0.15em;font-family:monospace;background:linear-gradient(120deg,#FF6B35,#4ECDC4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.app-sub{color:#2e2e2e;font-size:10px;letter-spacing:0.08em;margin-top:2px;font-family:monospace}
+.screen-title{font-size:20px;font-weight:800;margin:0}
+.card-lbl{color:#484848;font-size:11px;letter-spacing:0.07em;margin-bottom:12px;font-family:monospace;text-transform:uppercase;font-weight:600}
+
+/* Layout */
+.row{display:flex;align-items:center}
+.between{justify-content:space-between}
+.gap8{gap:8px}
+.stats-row{display:flex;gap:10px;margin-bottom:20px}
+.stat-card{flex:1;background:#111;border:1px solid #1a1a1a;border-radius:12px;padding:12px 14px}
+.stat-num{font-size:26px;font-weight:800;font-family:monospace}
+.stat-lbl{color:#3a3a3a;font-size:11px;margin-top:1px}
+.tab-row{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+.ex-list{display:flex;flex-direction:column;gap:8px}
+
+/* Buttons */
+button{cursor:pointer;font-family:inherit;border:none;background:none}
+.btn-back{background:#141414;border:1px solid #1e1e1e;border-radius:8px;color:#666;padding:8px;display:flex;align-items:center;justify-content:center;min-width:36px;min-height:36px}
+.btn-sm{display:flex;align-items:center;gap:5px;background:#111;border:1px solid #1e1e1e;border-radius:8px;color:#555;padding:8px 12px;font-size:12px}
+.btn-import{display:flex;align-items:center;gap:5px;background:#4ECDC418;border:1px solid #4ECDC440;border-radius:8px;color:#4ECDC4;padding:8px 12px;font-size:12px;font-weight:600}
+.tab{padding:7px 14px;border-radius:20px;border:1px solid #1e1e1e;background:transparent;color:#555;font-size:13px;font-weight:600;transition:all 0.12s}
+.btn-save{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#4ECDC4,#26a69a);border:none;border-radius:14px;color:#000;padding:15px;font-size:16px;font-weight:800;width:100%;transition:opacity 0.2s;min-height:52px}
+.btn-save:disabled{opacity:0.35}
+.btn-ghost{display:flex;align-items:center;justify-content:center;gap:7px;background:transparent;border:1px dashed #1e1e1e;border-radius:12px;color:#333;padding:14px;font-size:13px;width:100%}
+.btn-add-set{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;background:transparent;border:none;color:#2e2e2e;padding:12px 0 2px;font-size:13px}
+.btn-trash{background:transparent;border:none;color:#555;padding:6px;display:flex;align-items:center;min-width:32px;min-height:32px;justify-content:center}
+
+/* Cards */
+.card{background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:14px;margin-bottom:12px}
+.ex-card{display:flex;align-items:center;gap:10px;background:#111;border:1px solid #1a1a1a;border-radius:12px;padding:13px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ex-name{font-weight:700;font-size:15px;color:#fff;margin-bottom:3px}
+.ex-meta{color:#3e3e3e;font-size:12px}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.1em;font-family:monospace;margin-bottom:4px}
+
+/* Rec banner */
+.rec-banner{background:#111;border:1px solid;border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.rec-lbl{color:#484848;font-size:11px;margin-bottom:4px}
+.rec-w{font-size:36px;font-weight:900;color:#fff;line-height:1;font-family:monospace}
+.rec-unit{font-size:16px;color:#444;font-weight:400}
+.rec-last{color:#484848;font-size:12px;margin-top:3px}
+.status-pill{padding:6px 11px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap}
+
+/* Set grid */
+.grid-hdr{display:flex;align-items:center;gap:8px;padding-bottom:8px;margin-bottom:4px;border-bottom:1px solid #1a1a1a}
+.col-lbl{flex:1;color:#333;font-size:10px;letter-spacing:0.06em;text-align:center;font-family:monospace}
+.set-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #1a1a1a;border-radius:4px}
+.set-icon{width:30px;text-align:center;font-size:14px;flex-shrink:0}
+.cell{flex:1;background:#161616;border:1px solid #1a1a1a;border-radius:8px;color:#fff;padding:10px 4px;font-size:16px;outline:none;text-align:center;font-family:monospace;font-weight:600;min-width:0;-webkit-appearance:none;width:100%}
+.cell:focus{border-color:#333}
+
+/* RPE */
+.rpe-row{display:flex;gap:7px;margin-bottom:6px}
+.rpe-btn{flex:1;background:#161616;border:1px solid #222;border-radius:8px;color:#484848;padding:12px 0;font-size:15px;font-weight:700;font-family:monospace;transition:all 0.1s;min-height:44px}
+.rpe-btn.active{color:#000}
+.rpe-lbls{display:flex;justify-content:space-between;color:#333;font-size:10px}
+
+/* Proj card */
+.proj-card{background:#0d0d0d;border:1px solid;border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.proj-lbl{color:#2e2e2e;font-size:10px;letter-spacing:0.12em;font-family:monospace;margin-bottom:8px}
+.proj-w{font-size:30px;font-weight:900;font-family:monospace;line-height:1}
+.proj-note{color:#4a4a4a;font-size:12px;margin-top:4px}
+
+/* History */
+.date-hdr{color:#383838;font-size:11px;font-family:monospace;letter-spacing:0.08em;margin-bottom:8px;text-transform:uppercase}
+.hist-card{background:#111;border:1px solid #1a1a1a;border-radius:12px;padding:14px;margin-bottom:8px}
+.mini-set{background:#141414;border:1px solid;border-radius:6px;padding:3px 8px;font-size:11px;font-family:monospace}
+.mini-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+
+/* Custom input */
+.custom-card{display:flex;gap:8px;background:#111;border:1px solid #222;border-radius:12px;padding:12px}
+.custom-in{flex:1;background:transparent;border:none;color:#fff;font-size:14px;outline:none;font-family:inherit}
+.btn-cadd{background:#4ECDC4;border:none;border-radius:6px;color:#000;padding:6px 14px;font-weight:700;font-size:13px}
+.btn-cx{background:transparent;border:none;color:#444;font-size:18px;padding:0 4px}
+
+/* Import */
+.upload-area{border:2px dashed #2a2a2a;border-radius:16px;padding:40px 20px;text-align:center;cursor:pointer;margin-bottom:14px;background:#111}
+.import-img{width:100%;border-radius:12px;border:1px solid #1e1e1e;max-height:260px;object-fit:cover;object-position:top;display:block;margin-bottom:8px}
+.err-box{background:#FF6B6B18;border:1px solid #FF6B6B40;border-radius:12px;padding:12px 14px;color:#FF6B6B;font-size:13px;margin-bottom:12px}
+.import-desc{color:#484848;font-size:13px;margin-bottom:16px;line-height:1.6}
+.imp-ex{background:#111;border:1px solid #1a1a1a;border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer}
+.imp-cb{width:22px;height:22px;border-radius:6px;border:2px solid #2a2a2a;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.1s}
+
+/* Toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);color:#000;font-weight:700;padding:11px 22px;border-radius:100px;font-size:13px;z-index:9999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5);pointer-events:none;transition:opacity 0.3s}
+
+/* Util */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:30px;height:30px;border:3px solid #1a1a1a;border-top-color:#4ECDC4;border-radius:50%;animation:spin 0.8s linear infinite}
+.btn-spinner{display:inline-block;width:16px;height:16px;border:2px solid #00000040;border-top-color:#000;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+.empty{text-align:center;color:#2e2e2e;padding:60px 0;font-size:14px}
+.spacer{height:48px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="file-input" accept="image/*" style="display:none"/>
+
+<script>
+// ─── Storage ──────────────────────────────────────────────────────────────────
+const KEY = 'overload-v2';
+function load() {
+  try { const r=localStorage.getItem(KEY); return r?JSON.parse(r):{exercises:{},sessions:[]}; }
+  catch{ return {exercises:{},sessions:[]}; }
+}
+function save(d){ try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){} }
+
+// ─── Progressive overload ─────────────────────────────────────────────────────
+function getRec(history) {
+  if(!history||!history.length) return null;
+  const last=history[0];
+  const {sets,rpe}=last;
+  if(!sets||!sets.length) return null;
+  const tgt=sets[0].targetReps||8;
+  const missed=sets.filter(s=>s.reps<tgt).length;
+  const allHit=missed===0, one=missed===1, many=missed>=Math.ceil(sets.length/2);
+  const lw=sets[0].weight;
+  const inc=(last.muscleGroup==='push'||last.muscleGroup==='pull')?5:10;
+  let nw=lw,note='',status='hold';
+  if(allHit&&rpe&&rpe<=6)           {nw=lw+inc*1.5;note='All sets easy — bigger jump!';status='up';}
+  else if(allHit)                    {nw=lw+inc;note=`All ${sets.length} sets done — move up!`;status='up';}
+  else if(one&&!many)                {nw=lw;note='Almost — hold weight, nail all sets.';status='hold';}
+  else if(many||(rpe&&rpe>=10))     {nw=Math.round((lw*0.9)/2.5)*2.5;note='Struggled — slight deload.';status='down';}
+  else                               {nw=lw;note='Hold weight, focus on form.';status='hold';}
+  return {nextWeight:nw,note,lastWeight:lw,lastSets:sets,rpe,status};
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const DEF={
+  push:['Bench Press','Overhead Press','Incline DB Press','Lateral Raises','Tricep Pushdown'],
+  pull:['Deadlift','Barbell Row','Pull-Ups','Cable Row','Face Pulls','Bicep Curl'],
+  legs:['Squat','Romanian Deadlift','Leg Press','Leg Curl','Calf Raise'],
+  freeform:[]
+};
+const GC={
+  push:{bg:'#FF6B35',lt:'#FF6B3518',tx:'#FF6B35'},
+  pull:{bg:'#4ECDC4',lt:'#4ECDC418',tx:'#4ECDC4'},
+  legs:{bg:'#A78BFA',lt:'#A78BFA18',tx:'#A78BFA'},
+  freeform:{bg:'#F59E0B',lt:'#F59E0B18',tx:'#F59E0B'}
+};
+const SM={
+  up:{color:'#4ECDC4',icon:'↑',label:'Increase'},
+  hold:{color:'#F59E0B',icon:'→',label:'Hold'},
+  down:{color:'#FF6B6B',icon:'↓',label:'Deload'}
+};
+
+function detectGroup(n){
+  const s=n.toLowerCase();
+  if(/bench|press|fly|dip|tricep|lateral|chest|push|pec|shoulder|delt/.test(s))return'push';
+  if(/row|pull|curl|deadlift|lat|bicep|back|chin|cable|face/.test(s))return'pull';
+  if(/squat|leg|lunge|calf|hamstring|glute|hip|rdl|romanian/.test(s))return'legs';
+  return'freeform';
+}
+
+const SVG={
+  back:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>`,
+  plus:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  trash:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>`,
+  check:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  clock:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  img:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`
+};
+
+// ─── App State ────────────────────────────────────────────────────────────────
+const S={
+  data:load(),
+  view:'home',
+  group:'push',
+  exercise:null,
+  // sets: array of {w,r,t} strings — managed directly in DOM, read on save
+  numSets:3,
+  rpe:null,
+  showCustom:false,
+  // import
+  impImg:null,
+  impLoading:false,
+  impResults:null,
+  impError:null,
+  impSelected:[],
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getHistory(name){
+  return (S.data.sessions||[]).filter(s=>s.exercise===name).sort((a,b)=>new Date(b.date)-new Date(a.date));
+}
+function getExercises(group){
+  const d=DEF[group]||[];
+  const c=Object.values(S.data.exercises||{}).filter(e=>e.group===group).map(e=>e.name);
+  return [...d,...c];
+}
+function persist(data){ S.data=data; save(data); }
+
+function showToast(msg,color='#4ECDC4'){
+  document.querySelectorAll('.toast').forEach(e=>e.remove());
+  const el=document.createElement('div');
+  el.className='toast'; el.style.background=color; el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},2500);
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// Read set values from DOM (no re-render on input)
+function readSets(){
+  const rows=document.querySelectorAll('.set-row[data-idx]');
+  const result=[];
+  rows.forEach(row=>{
+    const w=row.querySelector('.inp-w')?.value||'';
+    const r=row.querySelector('.inp-r')?.value||'';
+    const t=row.querySelector('.inp-t')?.value||'8';
+    result.push({w,r,t});
+  });
+  return result;
+}
+
+// Update projection card without re-rendering the whole page
+function updateProjection(){
+  const sets=readSets();
+  const filled=sets.filter(s=>s.w!==''&&s.r!=='');
+  const proj=document.getElementById('proj-card');
+  if(!proj) return;
+  if(!filled.length){proj.style.display='none';return;}
+  const fakeSets=filled.map(s=>({weight:parseFloat(s.w)||0,reps:parseInt(s.r)||0,targetReps:parseInt(s.t)||8}));
+  const live=getRec([{sets:fakeSets,rpe:S.rpe,muscleGroup:S.exercise?.group}]);
+  if(!live){proj.style.display='none';return;}
+  proj.style.display='block';
+  proj.style.borderColor=SM[live.status].color+'35';
+  proj.querySelector('.proj-w').style.color=SM[live.status].color;
+  proj.querySelector('.proj-w').innerHTML=live.nextWeight+'<span style="font-size:16px;color:#444;font-weight:400"> lbs</span>';
+  proj.querySelector('.proj-note').textContent=live.note;
+  proj.querySelector('.proj-emoji').textContent=live.status==='up'?'🔥':live.status==='hold'?'💪':'🔄';
+}
+
+// Update set row styling (hit/miss indicator) without re-rendering
+function updateSetStyle(row){
+  const w=row.querySelector('.inp-w')?.value||'';
+  const r=row.querySelector('.inp-r')?.value||'';
+  const t=row.querySelector('.inp-t')?.value||'8';
+  const icon=row.querySelector('.set-icon');
+  const inp_r=row.querySelector('.inp-r');
+  const filled=w!==''&&r!=='';
+  const hit=filled&&parseInt(r)>=parseInt(t||8);
+  if(filled){
+    icon.innerHTML=`<span style="color:${hit?'#4ECDC4':'#FF6B6B'}">${hit?'✓':'✗'}</span>`;
+    inp_r.style.borderColor=hit?'#4ECDC450':'#FF6B6B50';
+    inp_r.style.color=hit?'#4ECDC4':'#FF6B6B';
+    row.style.borderBottomColor=hit?'#4ECDC425':'#FF6B6B25';
+    row.style.background=hit?'#4ECDC408':'#FF6B6B08';
+  } else {
+    const idx=row.dataset.idx;
+    icon.innerHTML=`<span style="color:#2e2e2e;font-family:monospace;font-size:11px">S${parseInt(idx)+1}</span>`;
+    inp_r.style.borderColor='#1a1a1a';
+    inp_r.style.color='#fff';
+    row.style.borderBottomColor='#1a1a1a';
+    row.style.background='transparent';
+  }
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function render(){
+  const app=document.getElementById('app');
+  if(S.view==='log')         app.innerHTML=renderLog();
+  else if(S.view==='history') app.innerHTML=renderHistory();
+  else if(S.view==='import')  app.innerHTML=renderImport();
+  else                        app.innerHTML=renderHome();
+  bindEvents();
+}
+
+// ─── HOME ─────────────────────────────────────────────────────────────────────
+function renderHome(){
+  const groups=['push','pull','legs','freeform'];
+  const exs=getExercises(S.group);
+  const col=GC[S.group];
+  const total=(S.data.sessions||[]).length;
+  const week=(S.data.sessions||[]).filter(s=>(new Date()-new Date(s.date))/86400000<=7).length;
+
+  const tabs=groups.map(g=>{
+    const c=GC[g]; const active=S.group===g;
+    return `<button class="tab" data-g="${g}" style="${active?`background:${c.bg};color:#000;border-color:${c.bg};font-weight:800`:''}">${g[0].toUpperCase()+g.slice(1)}</button>`;
+  }).join('');
+
+  const exCards=exs.map(name=>{
+    const hist=getHistory(name); const last=hist[0]||null; const rec=getRec(hist);
+    const meta=last
+      ?`Last: ${last.sets[0]?.weight} lbs · ${last.sets.map(s=>s.reps).join(' / ')} reps <span style="color:#333;margin-left:5px">${new Date(last.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>`
+      :`<span style="color:#2e2e2e">No history yet</span>`;
+    const recHtml=rec?`<div style="text-align:right;margin-right:6px"><div style="color:${col.tx};font-weight:800;font-size:17px;font-family:monospace">${rec.nextWeight}</div><div style="color:#383838;font-size:10px">lbs next</div></div>`:'';
+    return `<div class="ex-card" data-action="log" data-name="${esc(name)}">
+      <div style="flex:1;min-width:0"><div class="ex-name">${esc(name)}</div><div class="ex-meta">${meta}</div></div>
+      ${recHtml}<div style="color:${col.tx};font-size:22px;opacity:0.35">›</div>
+    </div>`;
+  }).join('');
+
+  const customHtml=S.showCustom
+    ?`<div class="custom-card"><input class="custom-in" id="cin" placeholder="New ${S.group} exercise..." autocomplete="off"/><button class="btn-cadd" data-action="add-custom">Add</button><button class="btn-cx" data-action="hide-custom">✕</button></div>`
+    :`<button class="btn-ghost" data-action="show-custom">${SVG.plus} <span style="margin-left:5px">Add Exercise</span></button>`;
+
+  return `
+    <div class="row between" style="margin-bottom:20px;align-items:flex-start">
+      <div><div class="app-name">OVERLOAD</div><div class="app-sub">Progressive Strength Tracker</div></div>
+      <div class="row gap8">
+        <button class="btn-import" data-action="go-import">${SVG.img} Import</button>
+        <button class="btn-sm" data-action="go-history">${SVG.clock} History</button>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" style="color:#4ECDC4">${total}</div><div class="stat-lbl">Total Sessions</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#FF6B35">${week}</div><div class="stat-lbl">This Week</div></div>
+    </div>
+    <div class="tab-row">${tabs}</div>
+    <div class="ex-list">${exCards}${customHtml}</div>`;
+}
+
+// ─── LOG ──────────────────────────────────────────────────────────────────────
+function renderLog(){
+  const {exercise,numSets,rpe}=S;
+  const hist=getHistory(exercise.name);
+  const rec=getRec(hist);
+  const col=GC[exercise.group]||GC.freeform;
+  const sugW=rec?String(rec.nextWeight):'';
+  const sugT=String(hist[0]?.sets[0]?.targetReps||8);
+
+  const recHtml=rec?`
+    <div class="rec-banner" style="border-color:${col.bg}55;margin-bottom:12px">
+      <div class="row between">
+        <div>
+          <div class="rec-lbl">🎯 Recommended for today</div>
+          <div class="rec-w">${rec.nextWeight}<span class="rec-unit"> lbs</span></div>
+          <div class="rec-last">Last: ${rec.lastWeight} lbs — ${rec.lastSets.map(s=>s.reps).join(' / ')} reps</div>
+        </div>
+        <div class="status-pill" style="background:${SM[rec.status].color}20;color:${SM[rec.status].color}">${SM[rec.status].icon} ${SM[rec.status].label}</div>
+      </div>
+    </div>`:'';
+
+  // Build set rows
+  let setRows='';
+  for(let i=0;i<numSets;i++){
+    setRows+=`<div class="set-row" data-idx="${i}" style="border-bottom-color:#1a1a1a">
+      <div class="set-icon"><span style="color:#2e2e2e;font-family:monospace;font-size:11px">S${i+1}</span></div>
+      <input class="cell inp-w" type="number" inputmode="decimal" placeholder="${sugW||'lbs'}" data-idx="${i}" autocomplete="off"/>
+      <input class="cell inp-r" type="number" inputmode="numeric" placeholder="—" data-idx="${i}" autocomplete="off"/>
+      <input class="cell inp-t" type="number" inputmode="numeric" placeholder="${sugT}" value="${sugT}" data-idx="${i}" autocomplete="off"/>
+      <button class="btn-trash" data-action="del-set" data-idx="${i}">${SVG.trash}</button>
+    </div>`;
+  }
+
+  // RPE buttons
+  const rpeBtns=[6,7,8,9,10].map(r=>`<button class="rpe-btn" id="rpe-${r}" data-action="set-rpe" data-rpe="${r}">${r}</button>`).join('');
+
+  return `
+    <div class="row gap8" style="margin-bottom:18px;align-items:flex-start">
+      <button class="btn-back" data-action="go-home">${SVG.back}</button>
+      <div><span class="badge" style="background:${col.lt};color:${col.tx}">${exercise.group.toUpperCase()}</span><h2 class="screen-title">${esc(exercise.name)}</h2></div>
+    </div>
+    ${recHtml}
+    <div class="card" id="sets-card">
+      <div class="grid-hdr">
+        <div style="width:30px"></div>
+        <div class="col-lbl">Weight (lbs)</div>
+        <div class="col-lbl">Reps Done</div>
+        <div class="col-lbl">Target</div>
+        <div style="width:32px"></div>
+      </div>
+      <div id="set-rows">${setRows}</div>
+      <button class="btn-add-set" data-action="add-set">${SVG.plus} <span style="margin-left:4px">Add Set</span></button>
+    </div>
+    <div class="proj-card" id="proj-card" style="display:none;margin-bottom:12px">
+      <div class="proj-lbl">NEXT SESSION PROJECTION</div>
+      <div class="row between">
+        <div><div class="proj-w"></div><div class="proj-note"></div></div>
+        <div class="proj-emoji" style="font-size:26px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-lbl">Overall RPE <span style="color:#383838;font-weight:400;text-transform:none;letter-spacing:0">(how hard was the session?)</span></div>
+      <div class="rpe-row">${rpeBtns}</div>
+      <div class="rpe-lbls"><span>Easy</span><span>Moderate</span><span>Max</span></div>
+    </div>
+    <button class="btn-save" id="save-btn" data-action="save-session">
+      ${SVG.check} Save Session
+    </button>
+    <div style="margin-top:16px;text-align:center">
+      <button style="background:transparent;border:none;color:#333;font-size:12px;text-decoration:underline" data-action="reset-data">Clear all data</button>
+    </div>
+    <div class="spacer"></div>`;
+}
+
+// ─── HISTORY ──────────────────────────────────────────────────────────────────
+function renderHistory(){
+  const sorted=[...(S.data.sessions||[])].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const grouped={};
+  sorted.forEach(s=>{
+    const d=new Date(s.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    if(!grouped[d])grouped[d]=[];grouped[d].push(s);
+  });
+  const isEmpty=!Object.keys(grouped).length;
+  const body=isEmpty?`<div class="empty">No sessions yet — start lifting!</div>`
+    :Object.entries(grouped).map(([date,sessions])=>{
+      const rows=sessions.map(s=>{
+        const col=GC[s.muscleGroup]||GC.freeform;
+        const top=[...s.sets].sort((a,b)=>b.weight-a.weight)[0];
+        const allHit=s.sets.every(st=>st.reps>=(st.targetReps||0));
+        const mini=s.sets.map(st=>{
+          const hit=st.reps>=(st.targetReps||0);
+          return `<div class="mini-set" style="border-color:${hit?col.bg+'70':'#252525'};color:${hit?col.tx:'#484848'}">${st.weight}×${st.reps}</div>`;
+        }).join('');
+        return `<div class="hist-card">
+          <div class="row between" style="align-items:flex-start">
+            <div style="flex:1">
+              <div class="row gap8" style="margin-bottom:4px">
+                <span class="badge" style="background:${col.lt};color:${col.tx};margin:0">${(s.muscleGroup||'').toUpperCase()}</span>
+                ${allHit?'<span style="font-size:11px;color:#4ECDC4">✓ All sets</span>':''}
+              </div>
+              <div style="font-weight:700;font-size:15px">${esc(s.exercise)}</div>
+              <div style="color:#484848;font-size:12px;margin-top:3px">${s.sets.length} sets · Top: ${top?.weight} lbs × ${top?.reps} reps${s.rpe?` · RPE ${s.rpe}`:''}</div>
+            </div>
+            <button class="btn-trash" data-action="del-session" data-id="${s.id}">${SVG.trash}</button>
+          </div>
+          <div class="mini-row">${mini}</div>
+        </div>`;
+      }).join('');
+      return `<div style="margin-bottom:22px"><div class="date-hdr">${date}</div>${rows}</div>`;
+    }).join('');
+  return `
+    <div class="row gap8" style="margin-bottom:18px">
+      <button class="btn-back" data-action="go-home">${SVG.back}</button>
+      <h2 class="screen-title">History</h2>
+    </div>
+    ${body}<div class="spacer"></div>`;
+}
+
+// ─── IMPORT ───────────────────────────────────────────────────────────────────
+function renderImport(){
+  const {impImg,impLoading,impResults,impError,impSelected}=S;
+  const uploadHtml=!impImg
+    ?`<div class="upload-area" data-action="pick-file">
+        <div style="font-size:36px;margin-bottom:10px">📸</div>
+        <div style="font-weight:700;margin-bottom:4px">Tap to upload screenshot</div>
+        <div style="color:#484848;font-size:12px">From Club4 or any workout app</div>
+      </div>`
+    :`<div style="margin-bottom:10px">
+        <img class="import-img" src="${impImg}" alt="screenshot"/>
+        <button class="btn-ghost" data-action="pick-file" style="margin-bottom:8px">${SVG.img} <span style="margin-left:5px">Choose different image</span></button>
+      </div>`;
+
+  const parseBtn=impImg&&!impResults
+    ?`<button class="btn-save" data-action="do-parse" ${impLoading?'disabled':''} style="margin-bottom:12px;opacity:${impLoading?0.6:1}">
+        ${impLoading?`<span class="btn-spinner"></span> Reading workout...`:`${SVG.img} <span style="margin-left:6px">Read Workout</span>`}
+      </button>`:'';
+
+  const errHtml=impError?`<div class="err-box">${impError}</div>`:'';
+
+  let resultsHtml='';
+  if(impResults){
+    const cards=impResults.exercises.map((ex,i)=>{
+      const sel=impSelected.includes(i);
+      const g=detectGroup(ex.name);
+      const c=GC[g];
+      const mini=ex.sets.map(s=>`<div class="mini-set" style="border-color:${c.bg}50;color:${c.tx}">${s.weight>0?`${s.weight}×${s.reps}`:`BW×${s.reps}`}</div>`).join('');
+      return `<div class="imp-ex" data-action="toggle-imp" data-idx="${i}" style="border-color:${sel?c.bg+'50':'#1a1a1a'};background:${sel?c.lt:'#111'}">
+        <div class="row between" style="align-items:flex-start">
+          <div style="flex:1">
+            <span class="badge" style="background:${c.lt};color:${c.tx};margin:0 0 4px">${g.toUpperCase()}</span>
+            <div style="font-weight:700;font-size:15px">${esc(ex.name)}</div>
+            <div style="color:#484848;font-size:12px;margin-top:2px">${ex.sets.length} sets</div>
+          </div>
+          <div class="imp-cb" style="border-color:${sel?c.bg:'#2a2a2a'};background:${sel?c.bg:'transparent'}">
+            ${sel?'<span style="color:#000;font-size:13px;font-weight:900">✓</span>':''}
+          </div>
+        </div>
+        <div class="mini-row">${mini}</div>
+      </div>`;
+    }).join('');
+    resultsHtml=`
+      <div style="color:#484848;font-size:11px;font-family:monospace;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px">
+        FOUND ${impResults.exercises.length} EXERCISES${impResults.date?` · ${impResults.date}`:''}
+      </div>
+      ${cards}
+      <button class="btn-save" data-action="confirm-imp" style="margin-top:8px;opacity:${impSelected.length?1:0.35}" ${impSelected.length?'':'disabled'}>
+        ${SVG.check} Import ${impSelected.length} Exercise${impSelected.length!==1?'s':''}
+      </button>`;
+  }
+
+  return `
+    <div class="row gap8" style="margin-bottom:18px">
+      <button class="btn-back" data-action="go-home">${SVG.back}</button>
+      <h2 class="screen-title">Import Workout</h2>
+    </div>
+    <div class="import-desc">Take a screenshot of your Club4 workout and upload it. Claude will read the exercises and weights automatically.</div>
+    ${uploadHtml}${parseBtn}${errHtml}${resultsHtml}
+    <div class="spacer"></div>`;
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+function bindEvents(){
+  const app=document.getElementById('app');
+
+  // ── Input events: update in-place, NO re-render ──
+  app.querySelectorAll('.inp-w,.inp-r,.inp-t').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const row=inp.closest('.set-row');
+      if(row) updateSetStyle(row);
+      updateProjection();
+    });
+    // Mirror weight from S1 to S2/S3 if they're empty
+    if(inp.classList.contains('inp-w')){
+      inp.addEventListener('input',e=>{
+        if(inp.dataset.idx==='0'){
+          app.querySelectorAll('.inp-w').forEach((other,i)=>{
+            if(i>0&&(other.value===''||other.dataset.mirrored==='1')){
+              other.value=e.target.value;
+              other.dataset.mirrored='1';
+              updateSetStyle(other.closest('.set-row'));
+            }
+          });
+        } else {
+          inp.dataset.mirrored='0';
+        }
+      });
+    }
+  });
+
+  // Custom exercise input
+  const cin=document.getElementById('cin');
+  if(cin){
+    cin.focus();
+    cin.addEventListener('keydown',e=>{if(e.key==='Enter')doAddCustom();});
+  }
+
+  // File input
+  document.getElementById('file-input').onchange=e=>{
+    const f=e.target.files[0]; if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{S.impImg=ev.target.result;S.impResults=null;S.impError=null;render();};
+    r.readAsDataURL(f);
+    e.target.value='';
+  };
+
+  // Click delegation
+  app.addEventListener('click',e=>{
+    const el=e.target.closest('[data-action]');
+    if(!el)return;
+    const a=el.dataset.action;
+
+    if(a==='go-home'){S.view='home';render();}
+    else if(a==='go-history'){S.view='history';render();}
+    else if(a==='go-import'){S.view='import';render();}
+    else if(a==='log'){S.exercise={name:el.dataset.name,group:S.group};S.numSets=3;S.rpe=null;S.view='log';render();}
+    else if(a==='show-custom'){S.showCustom=true;render();}
+    else if(a==='hide-custom'){S.showCustom=false;render();}
+    else if(a==='add-custom'){doAddCustom();}
+
+    else if(a==='add-set'){
+      // Add a new row to the DOM directly, no full re-render
+      const container=document.getElementById('set-rows');
+      const idx=container.querySelectorAll('.set-row').length;
+      const sugW=document.querySelector('.inp-w')?.value||'';
+      const sugT=document.querySelector('.inp-t')?.value||'8';
+      const div=document.createElement('div');
+      div.className='set-row'; div.dataset.idx=idx;
+      div.style.borderBottomColor='#1a1a1a';
+      div.innerHTML=`
+        <div class="set-icon"><span style="color:#2e2e2e;font-family:monospace;font-size:11px">S${idx+1}</span></div>
+        <input class="cell inp-w" type="number" inputmode="decimal" placeholder="${sugW||'lbs'}" value="${sugW}" data-idx="${idx}" autocomplete="off"/>
+        <input class="cell inp-r" type="number" inputmode="numeric" placeholder="—" data-idx="${idx}" autocomplete="off"/>
+        <input class="cell inp-t" type="number" inputmode="numeric" placeholder="${sugT}" value="${sugT}" data-idx="${idx}" autocomplete="off"/>
+        <button class="btn-trash" data-action="del-set" data-idx="${idx}">${SVG.trash}</button>`;
+      container.appendChild(div);
+      S.numSets=idx+1;
+      // Bind inputs on new row
+      div.querySelectorAll('.inp-w,.inp-r,.inp-t').forEach(inp=>{
+        inp.addEventListener('input',()=>{updateSetStyle(div);updateProjection();});
+      });
+    }
+
+    else if(a==='del-set'){
+      const rows=document.querySelectorAll('.set-row[data-idx]');
+      if(rows.length<=1)return;
+      const idx=+el.dataset.idx;
+      const row=document.querySelector(`.set-row[data-idx="${idx}"]`);
+      if(row)row.remove();
+      // Re-number
+      document.querySelectorAll('.set-row[data-idx]').forEach((r,i)=>{
+        r.dataset.idx=i;
+        r.querySelector('.set-icon').innerHTML=`<span style="color:#2e2e2e;font-family:monospace;font-size:11px">S${i+1}</span>`;
+        r.querySelectorAll('.inp-w,.inp-r,.inp-t').forEach(inp=>inp.dataset.idx=i);
+        r.querySelector('[data-action="del-set"]').dataset.idx=i;
+      });
+      S.numSets--;
+      updateProjection();
+    }
+
+    else if(a==='set-rpe'){
+      const r=+el.dataset.rpe;
+      S.rpe=S.rpe===r?null:r;
+      // Update button styles in-place
+      [6,7,8,9,10].forEach(n=>{
+        const btn=document.getElementById(`rpe-${n}`);
+        if(!btn)return;
+        const col=GC[S.exercise?.group]||GC.freeform;
+        if(n===S.rpe){btn.style.background=col.bg;btn.style.color='#000';btn.style.borderColor=col.bg;}
+        else{btn.style.background='';btn.style.color='';btn.style.borderColor='';}
+      });
+      updateProjection();
+    }
+
+    else if(a==='save-session'){doSave();}
+    else if(a==='del-session'){
+      persist({...S.data,sessions:(S.data.sessions||[]).filter(s=>s.id!==+el.dataset.id)});
+      render();
+    }
+    else if(a==='reset-data'){
+      if(confirm('Clear ALL workout data? This cannot be undone.')){
+        persist({exercises:{},sessions:[]});
+        S.view='home'; render();
+        showToast('Data cleared.','#FF6B6B');
+      }
+    }
+    else if(a==='pick-file'){document.getElementById('file-input').click();}
+    else if(a==='do-parse'){doParse();}
+    else if(a==='toggle-imp'){
+      const i=+el.dataset.idx;
+      S.impSelected=S.impSelected.includes(i)?S.impSelected.filter(x=>x!==i):[...S.impSelected,i];
+      render();
+    }
+    else if(a==='confirm-imp'){doImport();}
+  });
+
+  // Tab switching
+  app.querySelectorAll('.tab[data-g]').forEach(btn=>{
+    btn.addEventListener('click',()=>{S.group=btn.dataset.g;S.showCustom=false;render();});
+  });
+}
+
+// ─── Actions ──────────────────────────────────────────────────────────────────
+function doAddCustom(){
+  const cin=document.getElementById('cin');
+  const name=(cin?.value||'').trim();
+  if(!name)return;
+  const key=`custom-${Date.now()}`;
+  persist({...S.data,exercises:{...(S.data.exercises||{}),[key]:{name,group:S.group,key}}});
+  S.showCustom=false; showToast(`Added "${name}"!`); render();
+}
+
+function doSave(){
+  const sets=readSets();
+  const filled=sets.filter(s=>s.w!==''&&s.r!=='');
+  if(!filled.length){showToast('Add at least one set first.','#FF6B6B');return;}
+  const finalSets=filled.map(s=>({weight:parseFloat(s.w),reps:parseInt(s.r),targetReps:parseInt(s.t)||8}));
+  const session={id:Date.now(),exercise:S.exercise.name,muscleGroup:S.exercise.group,date:new Date().toISOString(),sets:finalSets,rpe:S.rpe};
+  persist({...S.data,sessions:[...(S.data.sessions||[]),session]});
+  showToast(`✓ ${S.exercise.name} saved!`);
+  S.view='home'; S.rpe=null; render();
+}
+
+async function doParse(){
+  if(!S.impImg)return;
+  S.impLoading=true; S.impError=null; S.impResults=null; render();
+  try{
+    const base64=S.impImg.split(',')[1];
+    const mt=S.impImg.split(';')[0].split(':')[1];
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mt,data:base64}},
+          {type:'text',text:`Extract all exercises and sets from this workout screenshot.
+Return ONLY valid JSON, no markdown:
+{"date":"YYYY-MM-DD or null","exercises":[{"name":"Exercise Name","sets":[{"reps":8,"weight":135}]}]}
+Weight in lbs as number. Bodyweight = 0.`}
+        ]}]
+      })
+    });
+    const d=await res.json();
+    const txt=(d.content||[]).map(c=>c.text||'').join('');
+    const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    S.impLoading=false; S.impResults=parsed; S.impSelected=parsed.exercises.map((_,i)=>i); render();
+  }catch(err){
+    S.impLoading=false; S.impError='Could not read the screenshot. Make sure it clearly shows exercises, sets, and weights.'; render();
+  }
+}
+
+function doImport(){
+  const {impResults,impSelected}=S;
+  if(!impResults)return;
+  const dateStr=(impResults.date||new Date().toISOString().split('T')[0])+'T12:00:00.000Z';
+  const newSessions=impResults.exercises
+    .filter((_,i)=>impSelected.includes(i))
+    .map(ex=>({
+      id:Date.now()+Math.random(),
+      exercise:ex.name,
+      muscleGroup:detectGroup(ex.name),
+      date:dateStr,
+      sets:ex.sets.map(s=>({weight:s.weight,reps:s.reps,targetReps:s.reps})),
+      rpe:null
+    }));
+  persist({...S.data,sessions:[...(S.data.sessions||[]),...newSessions]});
+  showToast(`✓ Imported ${newSessions.length} exercise${newSessions.length!==1?'s':''}!`);
+  S.view='home'; S.impImg=null; S.impResults=null; S.impError=null; S.impSelected=[]; render();
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
